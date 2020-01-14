@@ -1,5 +1,5 @@
-simple JS calc
-frameworks:
--react
--redux
--react-redux(?????)
+simple JS calc  
+frameworks:  
+-react  
+-redux  
+-react-redux(?????)  
