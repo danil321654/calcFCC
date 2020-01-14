@@ -1,76 +1,86 @@
 @import "https://fonts.googleapis.com/css?family=Share+Tech+Mono";
+
 @font-face {
   font-family: "Digital";
   src: url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.eot");
   src: url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.eot?#iefix") format("embedded-opentype"), url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.woff2") format("woff2"), url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.woff") format("woff"), url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.ttf") format("truetype"), url("//db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.svg#Digital-7") format("svg");
 }
-html,body {
+
+html, body {
   background: #c2c2d6;
   height: 100%;
   width: 100%;
 }
-#root{
+
+#root {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
 }
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+
 #calc {
   border: 3px solid gray;
   background: black;
-  width:340px;
+  width: 340px;
   height: 400px;
   font-family: digital;
   color: white;
   box-sizing: border-box;
 }
-#allDisp, #currentDisp{
+
+#allDisp, #currentDisp {
   text-align: right;
   margin: 10px 5px 0 0;
 }
-#allDisp{
+
+#allDisp {
   font-size: 1.2rem;
   color: orange;
 }
-#currentDisp{
+
+#currentDisp {
   font-size: 1.5rem;
 }
-#numPad{
+
+#numPad {
   padding: 8px 5px;
   display: grid;
-  grid-template-columns: repeat(4, 80px);
-  grid-template-rows: repeat(4, 65px);
+  grid-template: repeat(4, 65px) / repeat(4, 80px);
   grid-gap: 1px;
 }
-.button{
+
+.button {
   box-sizing: border-box;
-  background-color: #4d4d4d;
+  background: #4d4d4d;
   border: 0;
   min-height: 65px;
   min-width: 80px;
   color: white;
   font: 1.25rem Share Tech Mono, monospace;
 }
-.button:hover{
+
+.button:hover {
   color: black;
   outline: 1px solid rgb(171, 171, 171);
 }
-.red{
+
+.red {
   background: rgb(172, 57, 57);
 }
-.light-gray{
+
+.light-gray {
   background: gray;
 }
+
 .blue {
   background: rgb(0, 68, 102);
 }
-.horRectangle{
+
+.horRectangle {
   grid-column: span 2;
 }
-.vertRectangle{
+
+.vertRectangle {
   grid-row: span 2;
 }
