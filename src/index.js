@@ -98,6 +98,48 @@ const buttonsInfo = [{
     type: 'NUM'
   }
 ];
+const count = (expression) => {
+  let res = 0;
+  let nums = [];
+  let curNum = "";
+  for (let i = 0; i < expression.length; i++) {
+    if (expression[i] === '.') {
+      curNum += expression[i];
+      i++;
+    }
+    if (parseFloat(expression[i]) || parseFloat(expression[i]) === 0) curNum += expression[i].toString();
+    else {
+      if (curNum != '') nums.push(curNum);
+      if (expression[i] != '=') nums.push(expression[i]);
+      curNum = "";
+    }
+  }
+  nums.push(curNum);
+  for (let i = 0; i < nums.length; i++) {
+
+    switch (nums[i]) {
+      case '-':
+        nums = [...nums.slice(0, i), 0 - nums[i + 1], ...nums.slice(i + 2, nums.length)];
+        break;
+      case '/':
+        nums = [...nums.slice(0, i - 1), nums[i - 1] / nums[i + 1], ...nums.slice(i + 2, nums.length)];
+        i--;
+        break;
+      case 'x':
+        nums = [...nums.slice(0, i - 1), nums[i - 1] * nums[i + 1], ...nums.slice(i + 2, nums.length)];
+        i--;
+        break;
+      case '+':
+        nums = [...nums.slice(0, i), ...nums.slice(i + 1, nums.length)];
+      default:
+        break;
+    }
+  }
+  nums = [...nums.map(num => parseFloat(num))];
+  return nums.reduce((sum = 0, current) => {
+    return sum + current
+  }, 0);
+}
 
 const exprReducer = (state = {
   curDisplay: '0',
@@ -122,6 +164,14 @@ const exprReducer = (state = {
             allDisplay: state.allDisplay + action.id,
             last: 'ACT'
           });
+
+          if (state.last === 'COUNTED') {
+            return Object.assign({}, state, {
+              curDisplay: action.id,
+              allDisplay: state.curDisplay +action.id ,
+              last: 'ACT'
+            });
+          }
           if (state.last === 'NONE' && action.id === '-')
             return Object.assign({}, state, {
               curDisplay: action.id,
@@ -145,9 +195,21 @@ const exprReducer = (state = {
             return {
               curDisplay: action.id, allDisplay: state.allDisplay + action.id, last: 'NUM'
             };
+          case 'COUNTED':
+              return Object.assign({}, state, {
+                curDisplay: action.id,
+                allDisplay: action.id ,
+                last: 'NUM'
+              });
+            
           default:
             return state;
         }
+        case "COUNT":
+          return {
+            curDisplay: count(state.allDisplay), allDisplay: state.allDisplay + '=' + count(state.allDisplay).toString(), last: 'COUNTED'
+          };
+          break;
         default:
           return state;
   }
@@ -187,7 +249,10 @@ class CalcButton extends React.Component {
 }
 class Calc extends React.Component {
     render() {
-      let buttons = buttonsInfo.map((button,idx) => < CalcButton key={idx} props = {
+      let buttons = buttonsInfo.map((button, idx) => < CalcButton key = {
+          idx
+        }
+        props = {
           button
         }
         />);
