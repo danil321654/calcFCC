@@ -1,9 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {
+  Provider
+} from 'react-redux';
+import {
+  connect
+} from 'react-redux';
 import './index.css';
 import {
   createStore
 } from 'redux';
+
 
 
 const buttonsInfo = [{
@@ -99,7 +106,6 @@ const buttonsInfo = [{
   }
 ];
 const count = (expression) => {
-  let res = 0;
   let nums = [];
   let curNum = "";
   for (let i = 0; i < expression.length; i++) {
@@ -109,8 +115,8 @@ const count = (expression) => {
     }
     if (parseFloat(expression[i]) || parseFloat(expression[i]) === 0) curNum += expression[i].toString();
     else {
-      if (curNum != '') nums.push(curNum);
-      if (expression[i] != '=') nums.push(expression[i]);
+      if (curNum !== '') nums.push(curNum);
+      if (expression[i] !== '=') nums.push(expression[i]);
       curNum = "";
     }
   }
@@ -168,7 +174,7 @@ const exprReducer = (state = {
           if (state.last === 'COUNTED') {
             return Object.assign({}, state, {
               curDisplay: action.id,
-              allDisplay: state.curDisplay +action.id ,
+              allDisplay: state.curDisplay + action.id,
               last: 'ACT'
             });
           }
@@ -196,12 +202,12 @@ const exprReducer = (state = {
               curDisplay: action.id, allDisplay: state.allDisplay + action.id, last: 'NUM'
             };
           case 'COUNTED':
-              return Object.assign({}, state, {
-                curDisplay: action.id,
-                allDisplay: action.id ,
-                last: 'NUM'
-              });
-            
+            return Object.assign({}, state, {
+              curDisplay: action.id,
+              allDisplay: action.id,
+              last: 'NUM'
+            });
+
           default:
             return state;
         }
@@ -209,27 +215,19 @@ const exprReducer = (state = {
           return {
             curDisplay: count(state.allDisplay), allDisplay: state.allDisplay + '=' + count(state.allDisplay).toString(), last: 'COUNTED'
           };
-          break;
         default:
           return state;
   }
 }
-
-
-
-
-
 
 class CalcButton extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
   }
-  handleClick(event) {
-    store.dispatch({
-      id: this.props.props.id,
-      type: this.props.props.type
-    });
+  handleClick() {
+    this.props.click(this.props.props);
+
   }
   render() {
     return ( <
@@ -255,6 +253,9 @@ class Calc extends React.Component {
         props = {
           button
         }
+        click = {
+          this.props.updateScr
+        }
         />);
         return ( <
           div id = "calc" >
@@ -262,10 +263,10 @@ class Calc extends React.Component {
           div id = "displays" >
           <
           div id = "allDisp" > {
-            this.props.props.allDisplay
+            this.props.allDisplay
           } < /div> <
           div id = "currentDisp" > {
-            this.props.props.curDisplay
+            this.props.curDisplay
           } < /div> < /
           div > <
           div id = "numPad" > {
@@ -276,12 +277,37 @@ class Calc extends React.Component {
         )
       }
     }
+    const updScr = (action) => {
+      return {
+        id: action.id,
+        type: action.type
+      }
+    };
     const store = createStore(exprReducer);
-    const render = () => {
-        ReactDOM.render( < Calc props = {
-            store.getState()
-          }
-          /> , document.getElementById('root'));
+    // React-Redux:
+    const mapStateToProps = (state) => {
+      return {
+        curDisplay: state.curDisplay,
+        allDisplay: state.allDisplay
+      }
+    };
+    const mapDispatchToProps = (dispatch) => {
+      return {
+        updateScr: (action) => {
+          dispatch(updScr(action));
         }
-        render();
-        store.subscribe(render);
+      }
+    };
+
+const Container = connect(mapStateToProps, mapDispatchToProps)(Calc);
+
+    ReactDOM.render( <
+      Provider store = {
+        store
+      } >
+      <
+      Container / >
+      <
+      /Provider>,
+      document.getElementById('root')
+    );
