@@ -1,15 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-  Provider
-} from 'react-redux';
+  createStore
+} from 'redux';
 import {
+  Provider,
   connect
 } from 'react-redux';
 import './index.css';
 import {
-  createStore
-} from 'redux';
+  COUNT,
+  NUM,
+  ACT,
+  NONE
+} from './calcTypes'
 
 
 
@@ -17,92 +21,92 @@ const buttonsInfo = [{
     id: 'AC',
     size: 'horRectangle',
     color: 'red',
-    type: 'ACT'
+    type: ACT
   },
   {
     id: '/',
     size: 'square',
     color: 'light-gray',
-    type: 'ACT'
+    type: ACT
   },
   {
     id: 'x',
     size: 'square',
     color: 'light-gray',
-    type: 'ACT'
+    type: ACT
   },
   {
     id: '7',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '8',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '9',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '-',
     size: 'square',
     color: 'light-gray',
-    type: 'ACT'
+    type: ACT
   },
   {
     id: '4',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '5',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '6',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '+',
     size: 'square',
     color: 'light-gray',
-    type: 'ACT'
+    type: ACT
   },
   {
     id: '1',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '2',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '3',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '=',
     size: 'vertRectangle',
     color: 'blue',
-    type: 'COUNT'
+    type: COUNT
   },
   {
     id: '0',
     size: 'horRectangle',
-    type: 'NUM'
+    type: NUM
   },
   {
     id: '.',
     size: 'square',
-    type: 'NUM'
+    type: NUM
   }
 ];
 const count = (expression) => {
@@ -150,70 +154,71 @@ const count = (expression) => {
 const exprReducer = (state = {
   curDisplay: '0',
   allDisplay: '0',
-  last: 'NONE'
+  last: NONE
 }, action) => {
   switch (action.type) {
-    case "ACT":
+    case ACT:
       switch (action.id) {
         case 'AC':
           return Object.assign({}, state, {
             curDisplay: '0',
             allDisplay: '0',
-            last: 'NONE'
+            last: NONE
           });
         case '+':
         case '-':
         case '/':
         case 'x':
-          if (state.last === 'NUM') return Object.assign({}, state, {
+          if (state.last === NUM) return Object.assign({}, state, {
             curDisplay: action.id,
             allDisplay: state.allDisplay + action.id,
-            last: 'ACT'
+            last: ACT
           });
 
-          if (state.last === 'COUNTED') {
+          if (state.last === COUNT) {
             return Object.assign({}, state, {
               curDisplay: action.id,
               allDisplay: state.curDisplay + action.id,
-              last: 'ACT'
+              last: ACT
             });
           }
-          if (state.last === 'NONE' && action.id === '-')
+          if (state.last === NONE && action.id === '-')
             return Object.assign({}, state, {
               curDisplay: action.id,
               allDisplay: action.id,
-              last: 'ACT'
+              last: ACT
             });
         default:
           return state;
       }
-      case "NUM":
+      case NUM:
         switch (state.last) {
-          case 'NONE':
+          case NONE:
             return {
-              curDisplay: action.id, allDisplay: action.id, last: 'NUM'
+              curDisplay: action.id, allDisplay: action.id, last: NUM
             };
-          case 'NUM':
+          case NUM:
             return {
-              curDisplay: state.curDisplay + action.id, allDisplay: state.allDisplay + action.id, last: 'NUM'
+              curDisplay: state.curDisplay + action.id, allDisplay: state.allDisplay + action.id, last: NUM
             };
-          case 'ACT':
+          case ACT:
             return {
-              curDisplay: action.id, allDisplay: state.allDisplay + action.id, last: 'NUM'
+              curDisplay: action.id, allDisplay: state.allDisplay + action.id, last: NUM
             };
-          case 'COUNTED':
+          case COUNT:
             return Object.assign({}, state, {
               curDisplay: action.id,
               allDisplay: action.id,
-              last: 'NUM'
+              last: NUM
             });
 
           default:
             return state;
         }
-        case "COUNT":
+        case COUNT:
+          if (state.last === COUNT) return state;
           return {
-            curDisplay: count(state.allDisplay), allDisplay: state.allDisplay + '=' + count(state.allDisplay).toString(), last: 'COUNTED'
+            curDisplay: count(state.allDisplay), allDisplay: state.allDisplay + '=' + count(state.allDisplay).toString(), last: COUNT
           };
         default:
           return state;
@@ -246,6 +251,21 @@ class CalcButton extends React.Component {
   }
 }
 class Calc extends React.Component {
+    componentDidMount() {
+      document.addEventListener("keydown", this.handleKeyPress.bind(this));
+    }
+    componentWillUnmount() {
+      document.removeEventListener("keydown", this.handleKeyPress.bind(this));
+    }
+    handleKeyPress(event) {
+
+      if (buttonsInfo.map((button) => button.id).includes(event.key))
+        document.getElementById(event.key).click();
+      else if (event.key === 'Backspace')
+        document.getElementById('AC').click();
+      else if (event.key === 'Enter')
+        document.getElementById('=').click();
+    }
     render() {
       let buttons = buttonsInfo.map((button, idx) => < CalcButton key = {
           idx
@@ -258,7 +278,10 @@ class Calc extends React.Component {
         }
         />);
         return ( <
-          div id = "calc" >
+          div id = "calc"
+          onKeyDown = {
+            this.handleKeyPress
+          } >
           <
           div id = "displays" >
           <
@@ -277,14 +300,14 @@ class Calc extends React.Component {
         )
       }
     }
+    const store = createStore(exprReducer);// React-Redux:
+
     const updScr = (action) => {
       return {
         id: action.id,
         type: action.type
       }
     };
-    const store = createStore(exprReducer);
-    // React-Redux:
     const mapStateToProps = (state) => {
       return {
         curDisplay: state.curDisplay,
@@ -299,7 +322,7 @@ class Calc extends React.Component {
       }
     };
 
-const Container = connect(mapStateToProps, mapDispatchToProps)(Calc);
+    const Container = connect(mapStateToProps, mapDispatchToProps)(Calc);
 
     ReactDOM.render( <
       Provider store = {
